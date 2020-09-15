@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block content %}
+<a href="{% url "lists" %}">Discuss Your Symptoms With Us</a>
+<h3 class="mt-2">PCPs near You</h3>
+{% for idx,doctor in dataframe.iterrows %}
+ 
+  <div class="card mb-3">
+      <div class="card-body">
+        <h5 class="card-title">{{doctor.First_name}}, {{doctor.Last_name}}</h5>
+        <p class="card-text"><b>NPI: </b>{{doctor.NPI}}</p>
+        <p class="card-text"><b>{{doctor.Type}}</b></p>
+        <p class="card-text"><small class="text-muted"><b>Address:</b> {{doctor.Address}} </small></p>
+        <p class="card-text"><small class="text-muted"><b>Distance:</b> {{doctor.distance}} KM </small></p>
+        <p class="card-text"><small class="text-muted"><b>Ratings:</b> {{doctor.ratings}} out of 5 </small></p>
+        <button onclick="">Make My PCP</button>
+        <button onclick="dissatisfy()" id = "NPI" value="{{doctor.NPI}}">Disssatisfied</button>
+      </div>
+  </div>
+  <script>
+    function dissatisfy(){
+        var npi = document.getElementById("NPI").value
+        $.ajax({
+            type: "POST",
+            url: '{% url 'diss' %}',
+            data: { csrfmiddlewaretoken: '{{ csrf_token }}', npi:npi },
+            success: function(response){
+                alert(response);
+            }
+        });
+    }
+</script>
+{% endfor %}  
+
+{% endblock %}
