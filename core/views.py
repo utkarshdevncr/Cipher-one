@@ -68,7 +68,7 @@ disease_specialist_mapping = {'Migraine': 'Neurologists',
 'Arthritis': 'Orthopedic surgeons'}
 
 patients = pd.DataFrame({"UID": ['123456','234567'], "Name": ["Utkarsh", "Vignesh"], "Age": [25,26], "Street" : ["6011 W OUTER DR", "4001 TIETON DR"],
-"City" : ["Detroit","YAKIMA"], "State" : ["MI","WA"], "PIN" : [12345,345678], "Diss" : [[],[]]})
+"City" : ["Detroit","YAKIMA"], "State" : ["MI","WA"], "PIN" : [12345,345678], "Diss" : [[1598971327],[]]})
 
 
 def lists(request):
@@ -155,10 +155,10 @@ def addInfo(request):
     search_result = search_result.rename(columns = {'National Provider Identifier': 'NPI','First Name of the Provider': 'First_name','Last Name/Organization Name of the Provider': 'Last_name', 'Provider Type of the Provider': 'Type'})
     search_result = search_result.head(50)
     NPIs = search_result["NPI"].tolist()
-    for i in search_result["NPI"]:
+    """for i in search_result["NPI"]:
         if i in diss:
-            search_result = search_result.drop(search_result["NPI"]==i)
-
+            search_result = search_result.drop(search_result[search_result["NPI"]==i].index, inplace=True)
+"""
     search_result = search_result.round({"distance":2,"ratings":2})
     #print(type(search_result))
     #print(search_result)
@@ -169,10 +169,13 @@ def dissatisfy(request):
     global search_result
     npi = request.POST.get("npi")
     print(npi)
-    search_result = search_result.drop(search_result["NPI"]==npi)
+    search_result = search_result.drop(search_result[search_result["NPI"]==npi].index, inplace=True)
     #return HttpResponse("Hello")
     return render(request, "listing.html", {'dataframe':search_result})
 
+def profile(request):
+
+    return render(request, "profile.html", {})
 
 
 class HomeView(ListView):

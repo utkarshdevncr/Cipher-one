@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
-<a href="{% url "lists" %}">Discuss Your Symptoms With Us</a>
+<a href="{% url "lists" %}">Discuss Your Symptoms With Us</a><br>
+<a href="{% url "profile" %}">Check Your Assigned PCP</a>
 <h3 class="mt-2">PCPs near You</h3>
 {% for idx,doctor in dataframe.iterrows %}
  
@@ -13,7 +14,6 @@
         <p class="card-text"><small class="text-muted"><b>Distance:</b> {{doctor.distance}} KM </small></p>
         <p class="card-text"><small class="text-muted"><b>Ratings:</b> {{doctor.ratings}} out of 5 </small></p>
         <button onclick="">Make My PCP</button>
-        <button onclick="dissatisfy()" id = "NPI" value="{{doctor.NPI}}">Disssatisfied</button>
       </div>
   </div>
   <script>

@@ -9,4 +9,5 @@ urlpatterns = [
     path('addInfo',addInfo,name='addInfo'),
     path('lists',lists,name='lists'),
     path('diss',dissatisfy, name='diss'),
+    path('profile',profile, name='profile'),
 ]
