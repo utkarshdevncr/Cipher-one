@@ -1,13 +1,13 @@
 from django.contrib import admin
 from django.utils import timezone
 
-from .models import Category, Listing
+from .models import Category, Patients
 
 
-class ListingAdmin(admin.ModelAdmin):
-    list_display = ('Symptoms', 'name', 'Address', 'created_by', 'flagged', 'flagged_by', 'flagged_at')
-    list_filter = ('flagged',)
-    exclude = ['slug', 'created_by', 'created_at', 'flagged_at', 'flagged_by']
+class PatientAdmin(admin.ModelAdmin):
+    list_display = ('Name', 'Street', 'City', 'State', 'Pin', 'UID', 'Current', 'Book_Date', 'Disatisfy', 'Limit', 'Coinsurance', 'Deduct_Paid', 'Limit_Left', 'flagged', 'flagged_by', 'flagged_at')
+    list_filter = ('Book_Date',)
+    exclude = ['slug', 'created_at', 'flagged_at', 'flagged_by']
 
     def save_model(self, request, obj, form, change):
         if not obj.pk:
@@ -22,4 +22,4 @@ class ListingAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Category)
-admin.site.register(Listing, ListingAdmin)
+admin.site.register(Patients, PatientAdmin)

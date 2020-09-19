@@ -11,9 +11,10 @@ import pickle
 from geopy.geocoders import ArcGIS
 from geopy import distance
 import geopy, pandas as pd
-from .models import Listing
+from .models import Patients
 from sklearn.neural_network import MLPClassifier
-
+from django_pandas.io import read_frame
+qs = Patients.objects.all()
 
 symptom, disease = [], []
 disease_list = ['Fungal infection', 'Hepatitis B', 'Gastroenteritis', 'Allergy', 'Hepatitis E', 'Hypoglycemia', 'hepatitis A', 
@@ -67,9 +68,10 @@ disease_specialist_mapping = {'Migraine': 'Neurologists',
 'Common Cold': 'Physician',
 'Arthritis': 'Orthopedic surgeons'}
 
-patients = pd.DataFrame({"UID": ['123456','234567'], "Name": ["Utkarsh", "Vignesh"], "Age": [25,26], "Street" : ["6011 W OUTER DR", "4001 TIETON DR"],
-"City" : ["Detroit","YAKIMA"], "State" : ["MI","WA"], "PIN" : [12345,345678], "Diss" : [[1598971327],[]]})
+#patients = pd.DataFrame({"UID": ['123456','234567'], "Name": ["Utkarsh", "Vignesh"], "Age": [25,26], "Street" : ["6011 W OUTER DR", "4001 TIETON DR"],
+#"City" : ["Detroit","YAKIMA"], "State" : ["MI","WA"], "PIN" : [12345,345678], "Diss" : [[1598971327],[]]})
 
+patients = read_frame(qs)
 
 def lists(request):
     symptoms = symptoms_list
@@ -82,22 +84,17 @@ def addInfo(request):
     UID = request.POST.get("UID")
     #This is to use for database to check if exist or not
     df = patients.loc[patients['UID'] == UID]
+    print(df)
     if(df.empty == False):
-        name = df["Name"][0]
-        age = df["Age"][0]
-        street = df["Street"][0]
-        city = df["City"][0]
-        state = df["State"][0]
-        pin = df["PIN"][0]
-        diss = df["Diss"][0]
+        name = list(df["Name"])[0]
+        #age = df["Age"][0]
+        street = list(df["Street"])[0]
+        city = list(df["City"])[0]
+        state = list(df["State"])[0]
+        pin = list(df["Pin"])[0]
+        diss = list(df["Disatisfy"])[0]
     else:
-        name = "NA"
-        age = 0
-        street = "NA"
-        city = "NA"
-        state = "NA"
-        pin = 0
-        diss = []
+        return render(request, 'not_register.html')
     print(name, street)
     symptom = request.POST.getlist("cb1")
     disease = request.POST.getlist("cb2")
@@ -163,48 +160,51 @@ def addInfo(request):
     #print(type(search_result))
     #print(search_result)
     
-    return render(request, "listing.html", {'dataframe':search_result.head(20)})
+    return render(request, "listing.html", {'dataframe':search_result.head(20), 'name':name, 'street':street, 'city':city, 'state':state, 'uid':UID})
 
 def dissatisfy(request):
     global search_result
-    npi = request.POST.get("npi")
-    print(npi)
-    search_result = search_result.drop(search_result[search_result["NPI"]==npi].index, inplace=True)
+    #npi = request.POST.get("npi")
+    #print(npi)
+    #search_result = search_result.drop(search_result[search_result["NPI"]==npi].index, inplace=True)
     #return HttpResponse("Hello")
     return render(request, "listing.html", {'dataframe':search_result})
 
 def profile(request):
+    UID = request.GET.get("UI")
+    print(UID)
+    df = patients.loc[patients['UID'] == UID]
+    
+    if(df.empty):
+        return render(request, 'not_register.html')
+    if(list(df['Current'])[0]==0):
+        doc = pd.DataFrame()
+    else:
+        doc = pd.read_csv('core\doctor_database_geocoded_final.csv')
+        doc = doc.loc[doc['National Provider Identifier'] == df['Current'][0]]
+        doc = doc.rename(columns = {'National Provider Identifier': 'NPI','First Name of the Provider': 'First_name','Last Name/Organization Name of the Provider': 'Last_name', 'Provider Type of the Provider': 'Type'})
+    print(df)
+    return render(request, "profile.html", {'data':df, 'doctor':doc})
 
-    return render(request, "profile.html", {})
-
+def book(request):
+    global UID
+    NPI = request.POST.get('npi')
+    df = patients.loc[patients['UID'] == UID]
+    df['Current'][0] = NPI
+    doc = pd.read_csv('core\doctor_database_geocoded_final.csv')
+    doc = doc.loc[doc['National Provider Identifier'] == df['Current'][0]]
+    doc = doc.rename(columns = {'National Provider Identifier': 'NPI','First Name of the Provider': 'First_name','Last Name/Organization Name of the Provider': 'Last_name', 'Provider Type of the Provider': 'Type'})
+    return render(request, "profile.html", {'data':df, 'doctor':doc})
 
 class HomeView(ListView):
     template_name = 'listing.html'
-    queryset = Listing.objects.filter(flagged=False)
+    queryset = Patients.objects.filter(flagged=False)
     context_object_name = 'listings'
     paginate_by = 30
 
 
-class CreateListing(LoginRequiredMixin, CreateView):
-    model = Listing
-    fields = ['name', 'Symptoms', 'Address', 'birth_date', 'previous_history']
-    template_name = 'add_listing.html'
-
-    def get_success_url(self):
-        return reverse('home')
-
-    def form_valid(self, form):
-        form.instance.created_by = self.request.user
-        return super().form_valid(form)
 
 
-class ListingView(DetailView):
-    template_name = 'listing.html'
-    model = Listing
 
-    def get_object(self):
-        obj = super(ListingView, self).get_object()
-        if obj.flagged:
-            raise Http404()
-        return obj
+
 

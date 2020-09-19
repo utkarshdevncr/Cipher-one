@@ -1,12 +1,25 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class= "row">
-    <b>Enter Your UID:</b> <input type= "text" id="UID" name="UID">
-    <button onclick="">Submit</button>
 
+<h5>Dependent Details:</h5>
+<div class="card mb-3">
+    <div class="card-body">
+        <b>Name:</b> {{data.Name.0}}<br>
+        <p class="card-text">{{data.Street.0}}, {{data.City.0}}, {{data.State.0}}<br>
+        <button>Change Address</button></p>
+        <br><p class="card-text"><b>Assigned PCP: </b></p>
+        {{doctor.First_name.0}}, {{doctor.Last_name.0}}
+        <br><b>NPI:</b>{{doctor.NPI}}
+        {% if data.Book_Date.0 == null %}
+        <br><button>Book Appointment</button>
+        {% else %}
+        <br><p class="cards-text"><b>Upcoming Booking: </b>
+        {{data.Book_Date.0}}</p>
+        {% endif %}
+    </div>
 </div>
 
-{% endblock %}
-<script>
 
-</script>
+
+
+{% endblock %}

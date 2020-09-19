@@ -15,19 +15,22 @@ class Category(models.Model):
         verbose_name_plural = "Categories"
 
 
-class Listing(models.Model):
-    name = models.CharField(max_length=150)
-    Symptoms = models.TextField()
-    Address = models.ForeignKey(Category, on_delete=models.PROTECT)
-    birth_date = models.DateField(null=True, blank=True)
-    previous_history = models.CharField(max_length=150, null=True, blank=True)
-    slug = models.SlugField()
+class Patients(models.Model):
+    Name = models.CharField(max_length=150)
+    Street = models.CharField(max_length=150)
+    City = models.CharField(max_length=150)
+    State = models.CharField(max_length=150)
+    Pin = models.IntegerField()
+    UID = models.CharField(max_length=10, primary_key=True)
+    Disatisfy = models.CharField(max_length=100, default="", null=True)
+    Current = models.IntegerField(null=True)
+    Book_Date = models.DateTimeField(null=True, blank=True)
+    Limit = models.IntegerField()
+    Coinsurance = models.IntegerField()
+    Deduct_Paid = models.IntegerField()
+    Limit_Left = models.IntegerField()
 
-    created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.PROTECT,
-        related_name='listings'
-    )
+
     created_at = models.DateTimeField(default=timezone.now)
 
     flagged = models.BooleanField(default=False)
@@ -40,16 +43,16 @@ class Listing(models.Model):
     flagged_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
-        return self.name
+        return self.Name
 
     class Meta:
         ordering = ['-created_at']
 
     def save(self, *args, **kwargs):
-        if not self.id:
-            self.slug = slugify(self.name)
+        if not self.UID:
+            self.slug = slugify(self.Name)
 
-        return super(Listing, self).save(*args, **kwargs)
+        return super(Patients, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('listing',
