@@ -80,7 +80,7 @@ def lists(request):
     return render(request, 'add_listing.html', {'symptoms': symptoms, 'diseases':diseases})
 
 def addInfo(request):
-    global UID,name, age, street, city, pin, search_result
+    global UID,name, age, street, city, pin, search_result, df
     UID = request.POST.get("UID")
     #This is to use for database to check if exist or not
     df = patients.loc[patients['UID'] == UID]
@@ -195,6 +195,18 @@ def book(request):
     doc = doc.loc[doc['National Provider Identifier'] == df['Current'][0]]
     doc = doc.rename(columns = {'National Provider Identifier': 'NPI','First Name of the Provider': 'First_name','Last Name/Organization Name of the Provider': 'Last_name', 'Provider Type of the Provider': 'Type'})
     return render(request, "profile.html", {'data':df, 'doctor':doc})
+
+def address(request):
+    UID = request.POST.get('UID')
+    street = request.POST.get('street')
+    city = request.POST.get('city')
+    state = request.POST.get('state')
+    pin = request.POST.get('pin')
+    return render(request, "profile.html", {'data':df, 'doctor':doc})
+
+def addview(request):
+
+    return render(request, "address.html")
 
 class HomeView(ListView):
     template_name = 'listing.html'

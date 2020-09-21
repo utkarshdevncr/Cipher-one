@@ -6,10 +6,10 @@
     <div class="card-body">
         <b>Name:</b> {{data.Name.0}}<br>
         <p class="card-text">{{data.Street.0}}, {{data.City.0}}, {{data.State.0}}<br>
-        <button>Change Address</button></p>
+        <a href="{% url 'addview' %}">Change Address</a>
         <br><p class="card-text"><b>Assigned PCP: </b></p>
         {{doctor.First_name.0}}, {{doctor.Last_name.0}}
-        <br><b>NPI:</b>{{doctor.NPI}}
+        <br><b>NPI:</b>{{doctor.NPI.0}}
         {% if data.Book_Date.0 == null %}
         <br><button>Book Appointment</button>
         {% else %}
